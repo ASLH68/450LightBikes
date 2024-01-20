@@ -40,6 +40,12 @@ class ALightBikesCS450Character : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* RightAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* LeftAction;
+
 	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
@@ -53,8 +59,16 @@ protected:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 
+	void TurnRight(const FInputActionValue& Value);
+	void TurnLeft(const FInputActionValue& Value);
+
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+
+	void Tick(float DeltaTime);
+
+	bool RotateActor = false;
+	float TargetRotation = 0.0f;
 			
 
 protected:
