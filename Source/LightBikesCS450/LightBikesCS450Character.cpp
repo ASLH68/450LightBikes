@@ -9,6 +9,8 @@
 #include "GameFramework/Controller.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "LightBikesCS450GameMode.h"
+#include "Kismet/GameplayStatics.h"
 #include "InputActionValue.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -20,6 +22,9 @@ ALightBikesCS450Character::ALightBikesCS450Character()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+
+	// Sets up collisions
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ALightBikesCS450Character::OnCompHit);
 		
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	/*bUseControllerRotationPitch = false;
@@ -180,5 +185,21 @@ void ALightBikesCS450Character::Look(const FInputActionValue& Value)
 		// add yaw and pitch input to controller
 		//AddControllerYawInput(LookAxisVector.X);
 		//AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
+
+void ALightBikesCS450Character::OnCompHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	// Restarts game when player hits the trail
+	if ((OtherActor != NULL)  && (OtherComp != NULL) && (OtherActor->ActorHasTag("Trail")))
+	{
+		bool loaded = false;
+		if (!loaded)
+		{
+			UGameplayStatics::OpenLevel(GetWorld(), "ThirdPersonMap");
+			loaded = true;
+		}
+		
+		//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("I Hit: %s"), *OtherActor->GetName()));
 	}
 }
