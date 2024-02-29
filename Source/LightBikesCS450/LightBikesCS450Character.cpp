@@ -203,3 +203,11 @@ void ALightBikesCS450Character::OnCompHit(UPrimitiveComponent* OverlappedComp, A
 		//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("I Hit: %s"), *OtherActor->GetName()));
 	}
 }
+
+void ALightBikesCS450Character::GainPoint() {
+	++points;
+}
+
+int ALightBikesCS450Character::GetPoints() {
+	return points;
+}

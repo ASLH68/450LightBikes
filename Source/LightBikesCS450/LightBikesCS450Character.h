@@ -50,10 +50,18 @@ class ALightBikesCS450Character : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
+
+	int points = 0;
+
+
 public:
 	ALightBikesCS450Character();
 	
+	UFUNCTION(BlueprintCallable, category = "Game")
+	void GainPoint();
 
+	UFUNCTION(BlueprintCallable, category = "Game")
+	int GetPoints();
 protected:
 
 	/** Called for movement input */
