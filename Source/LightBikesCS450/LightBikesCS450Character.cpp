@@ -93,7 +93,7 @@ void ALightBikesCS450Character::BeginPlay()
 
 	// Sets the camera position and rotation
 	CameraBoom->TargetArmLength = -100.0f; // The camera follows at this distance behind the character	
-	CameraBoom->SetRelativeLocation(FVector(0.0, 0.0f, 900.0f));
+	CameraBoom->SetRelativeLocation(FVector(0.0, 0.0f, 1200.0f));
 	FollowCamera->SetWorldRotation(FRotator(-90.0f, 0.0f, 0.0f));
 }
 
