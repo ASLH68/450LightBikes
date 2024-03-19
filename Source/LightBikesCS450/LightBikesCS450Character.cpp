@@ -95,6 +95,8 @@ void ALightBikesCS450Character::BeginPlay()
 	CameraBoom->TargetArmLength = -100.0f; // The camera follows at this distance behind the character	
 	CameraBoom->SetRelativeLocation(FVector(0.0, 0.0f, 1200.0f));
 	FollowCamera->SetWorldRotation(FRotator(-90.0f, 0.0f, 0.0f));
+
+	SetupSpline();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -151,28 +153,10 @@ void ALightBikesCS450Character::Move(const FInputActionValue& Value)
 void ALightBikesCS450Character::TurnRight(const FInputActionValue& Value)
 {
 	TargetRotation = GetActorRotation().Yaw + 90.0f;
-
-	// Failed experiments
-	/*UE_LOG(LogTemp, Warning, TEXT("Right, %f"), newRot);
-	UE_LOG(LogTemp, Warning, TEXT("original, %f"), GetActorRotation().Yaw);*/
-	//SetActorRotation(FRotator(0.0, newRot, 0.0));
-	//SetControlRotation(FRotator(GetActorRotation().Pitch, GetControlRotation().Yaw, GetActorRotation().Roll));
-	//AddActorLocalRotation(FRotator(0.0, 100.f, 0.0f));
-	//AddControllerYawInput(90.f);
-	//AddActorWorldRotation(FRotator(0.0, 90.0f, 0.0f));
-	//SetControlRotation(FQuat(FVector::UpVector, FMath::DegreesToRadians(90.0f)));	
 }
 void ALightBikesCS450Character::TurnLeft(const FInputActionValue& Value)
 {
 	TargetRotation = GetActorRotation().Yaw - 90.0f;
-
-	// Failed experiments
-	//SetActorRotation(FRotator(0.0, GetActorRotation().Yaw - 90, 0.0));
-	//AddControllerYawInput(-90);
-	//AddActorLocalRotation(FRotator(0.0, -100.f, 0.0f));
-	//this->AddActorLocalRotation(FRotator(0.0f, 50.f, 0.0f), false);
-	//AddActorWorldRotation(FRotator(0.0, -90.f, 0.0f));
-	//SetActorRotation(FRotator(GetActorRotation().Add(0.0, -90, 0.0)), ETeleportType::None);
 }
 
 void ALightBikesCS450Character::Look(const FInputActionValue& Value)
@@ -202,6 +186,12 @@ void ALightBikesCS450Character::OnCompHit(UPrimitiveComponent* OverlappedComp, A
 		
 		//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("I Hit: %s"), *OtherActor->GetName()));
 	}
+}
+
+void ALightBikesCS450Character::SetupSpline()
+{
+	ATrailSpline* spawnedSpline = GetWorld()->SpawnActor<ATrailSpline>(ATrailSpline::StaticClass(), GetActorTransform());
+	Spline = spawnedSpline->GetComponentByClass<USplineComponent>();
 }
 
 void ALightBikesCS450Character::GainPoint() {
