@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Blueprint/UserWidget.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "Components/SplineComponent.h"
 #include "TrailSpline.h"
+#include "TimerManager.h"
 #include "LightBikesCS450Character.generated.h"
 
 class USpringArmComponent;
@@ -52,9 +54,10 @@ class ALightBikesCS450Character : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spline, meta = (AllowPrivateAccess = "true"))
+	float SplineTimerInterval;
 
 	int points = 0;
-
 
 public:
 	ALightBikesCS450Character();
@@ -64,6 +67,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, category = "Game")
 	int GetPoints();
+
 protected:
 
 	/** Called for movement input */
@@ -80,8 +84,21 @@ protected:
 	bool RotateActor = false;
 	float TargetRotation = 0.0f;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default")
-	TObjectPtr<USplineComponent> Spline;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spline")
+	TSubclassOf<ATrailSpline> TrailSplineBP;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = LightTrailBP, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<ALightTrail> LightTrailBP;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<UUserWidget> _endScreen;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	int _maxPoints;
+
+	//// Instance of end-game screen
+	UPROPERTY()
+	UUserWidget* CurrentWidget;
 			
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -99,9 +116,33 @@ public:
 	void OnCompHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 private:
+
+	FTimerHandle _splinePointTimer;
+	ATrailSpline* _spawnedSpline;
+
+	/// <summary>
+	/// Creates the end game widget
+	/// </summary>
+	void CreateEndGameWidget();
+
 	/// <summary>
 	/// Initializes the spline component
 	/// </summary>
 	void SetupSpline();
+
+	/// <summary>
+	/// Starts a timer that spawns spline points
+	/// </summary>
+	void SplinePointTimer();
+
+	/// <summary>
+	/// Spawns a spline point
+	/// </summary>
+	void SpawnPoint();
+
+	/// <summary>
+	/// Spawns a light trail actor for player collisions
+	/// </summary>
+	void SpawnLightTrail(FTransform& spawnLoc);
 };
 

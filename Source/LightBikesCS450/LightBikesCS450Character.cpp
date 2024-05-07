@@ -13,6 +13,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "InputActionValue.h"
 
+
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 //////////////////////////////////////////////////////////////////////////
@@ -145,8 +146,7 @@ void ALightBikesCS450Character::Move(const FInputActionValue& Value)
 		
 		// add movement 
 		//AddMovementInput(ForwardDirection, MovementVector.Y);
-		AddMovementInput(RightDirection, MovementVector.X);
-		
+		AddMovementInput(RightDirection, MovementVector.X);	
 	}
 }
 
@@ -175,7 +175,7 @@ void ALightBikesCS450Character::Look(const FInputActionValue& Value)
 void ALightBikesCS450Character::OnCompHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	// Restarts game when player hits the trail
-	if ((OtherActor != NULL)  && (OtherComp != NULL) && (OtherActor->ActorHasTag("Trail")))
+	if ((OtherActor != NULL)  && (OtherComp != NULL) && (OtherActor->ActorHasTag("Trail")) /*Cast<ALightTrail>(OtherActor) != NULL */ )
 	{
 		bool loaded = false;
 		if (!loaded)
@@ -188,14 +188,51 @@ void ALightBikesCS450Character::OnCompHit(UPrimitiveComponent* OverlappedComp, A
 	}
 }
 
+void ALightBikesCS450Character::CreateEndGameWidget()
+{
+	CurrentWidget = CreateWidget<UUserWidget>(GetWorld(), _endScreen);
+
+	if (CurrentWidget != nullptr)
+	{
+		CurrentWidget->AddToViewport();
+	}
+}
+
 void ALightBikesCS450Character::SetupSpline()
 {
-	ATrailSpline* spawnedSpline = GetWorld()->SpawnActor<ATrailSpline>(ATrailSpline::StaticClass(), GetActorTransform());
-	Spline = spawnedSpline->GetComponentByClass<USplineComponent>();
+	_spawnedSpline = GetWorld()->SpawnActor<ATrailSpline>(TrailSplineBP, GetActorTransform());
+	SplinePointTimer();
+}
+
+void ALightBikesCS450Character::SplinePointTimer()
+{
+	GetWorldTimerManager().SetTimer(_splinePointTimer, this, &ALightBikesCS450Character::SpawnPoint, SplineTimerInterval, true, 0.1f);
+}
+
+void ALightBikesCS450Character::SpawnPoint()
+{
+	FVector spawnLocation = GetActorLocation();
+	_spawnedSpline->SpawnSplinePoint(spawnLocation);
+
+	FTransform trailSpawnLoc = GetActorTransform();
+	SpawnLightTrail(trailSpawnLoc);
+}
+
+void ALightBikesCS450Character::SpawnLightTrail(FTransform& spawnLoc)
+{
+	ALightTrail* tempTrail;
+	tempTrail = GetWorld()->SpawnActor<ALightTrail>(LightTrailBP, spawnLoc);
+
+	FRotator playerRot = GetActorRotation();
+	tempTrail->SetActorRotation(playerRot);
 }
 
 void ALightBikesCS450Character::GainPoint() {
-	++points;
+
+	if (++points >= _maxPoints)
+	{
+		CreateEndGameWidget();
+	}
 }
 
 int ALightBikesCS450Character::GetPoints() {
